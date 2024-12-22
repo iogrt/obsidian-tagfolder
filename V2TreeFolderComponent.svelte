@@ -34,6 +34,7 @@
         tagFolderSetting,
         tagInfo,
         v2expandedTags,
+        searchString,
     } from "./store";
     import { collectTreeChildren, performSortExactFirst } from "./v2codebehind";
     import TreeItemItemComponent from "V2TreeItemComponent.svelte";
@@ -609,6 +610,9 @@
     });
 
     const leftOverItemsUnsorted = $derived.by(() => {
+        if ($searchString.trim() !== '') {
+            return _items;
+        }
         if (_setting.useMultiPaneList && isMainTree) return [] as ViewItem[];
         if (isRoot && isMainTree && !isSuppressibleLevel) {
             // The root, except not is suppressible.
@@ -835,22 +839,26 @@
         {#snippet treeContent(childrenDisp: V2FolderItem[][], leftOverItemsDisp:ViewItem[][])}
             {#each childrenDisp as items}
                 {#each items as [f, tagName, tagNameDisp, subitems]}
-                <V2TreeFolderComponent
-                    {viewType}
-                    items={subitems}
-                    thisName={f}
-                    trail={[...trail, ...suppressLevels, f]}
-                    {folderIcon}
-                    {openFile}
-                    isRoot={false}
-                    {showMenu}
-                    {isMainTree}
-                    {openScrollView}
-                    {hoverPreview}
-                    {tagName}
-                    {tagNameDisp}
-                    depth={isInDedicatedTag ? depth : depth + 1}
-                />
+                    {#if $searchString.trim() == ''}
+                        <V2TreeFolderComponent
+                            {viewType}
+                            items={subitems} 
+                            thisName={f}
+                            trail={[...trail, ...suppressLevels, f]}
+                            {folderIcon}
+                            {openFile}
+                            isRoot={false}
+                            {showMenu}
+                            {isMainTree}
+                            {openScrollView}
+                            {hoverPreview}
+                            {tagName}
+                            {tagNameDisp}
+                            depth={isInDedicatedTag ? depth : depth + 1}
+                        />
+                    {:else}
+                        <span style="font-size: 0.6em; padding-right: 5px; color:gray">{f}</span>
+                    {/if}
             {/each}
             {/each}
             {#each leftOverItemsDisp as items}
